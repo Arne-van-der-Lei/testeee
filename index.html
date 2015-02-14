@@ -1,40 +1,175 @@
+
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+<html lang="en">
+	<head>
+		<title>three.js webgl - interactive - Robocraft painter</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+			#oldie { background-color: #ddd !important }
+		</style>
+	</head>
+	<body>
 
-    <title>Testeee by houdhakker2</title>
-  </head>
+		<script src="http://threejs.org/build/three.min.js"></script>
 
-  <body>
+		<script>
+			var container;
+			var camera,speed, scene, renderer;
+			var player, ground;
 
-    <header>
-      <div class="container">
-        <h1>Testeee</h1>
-        <h2></h2>
+			var objects = [];
 
-        <section id="downloads">
-          <a href="https://github.com/houdhakker2/testeee/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/houdhakker2/testeee/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/houdhakker2/testeee" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+			init();
+			animate();
 
-    <div class="container">
-      <section id="main_content">
-        <h1>
-<a id="testeee" class="anchor" href="#testeee" aria-hidden="true"><span class="octicon octicon-link"></span></a>testeee</h1>
+			var mouse = {x: 0, y: 0};
 
-<p>ok</p>
-      </section>
-    </div>
+			document.addEventListener('mousemove', function(e){ 
+			    mouse.x = e.clientX || e.pageX; 
+			    mouse.y = e.clientY || e.pageY 
+			}, false);
 
-    
-  </body>
+			function init() {
+
+				speed = 5;
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.3, 1000 );
+				camera.position.set( 10, 10, 0 );
+				camera.lookAt( new THREE.Vector3() );
+
+				scene = new THREE.Scene();
+
+				var axisHelper = new THREE.AxisHelper( 1 );
+				scene.add( axisHelper );
+				// cubes
+
+				ground = new createGround(0,0,0,20,1,20,0xF0F0F0);
+				player = new player();
+
+
+				// Lights
+				var ambientLight = new THREE.AmbientLight( 0x606060 );
+				scene.add( ambientLight );
+
+				var directionalLight = new THREE.DirectionalLight( 0xffffff );
+				directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+				scene.add( directionalLight );
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0x000000 );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container.appendChild( renderer.domElement );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'dblclick', onDocumentMouseDown, false );
+				document.addEventListener( 'keydown', onDocumentKeyDown, false );
+				document.addEventListener( 'keyup', onDocumentKeyUp, false );
+
+				
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function createGround(x,y,z,w,h,l,c){
+				this.art = createBox(x,y-0.5,z,w,h,l,c);
+			}
+
+			function createBox(x,y,z,w,h,l,c){
+				footer = new THREE.BoxGeometry( w, h, l );
+				footerMaterial = new THREE.MeshBasicMaterial( { color: c } );
+				footerMesh = new THREE.Mesh( footer, footerMaterial );
+				footerMesh.position.x+= x;
+				footerMesh.position.y+= y;
+				footerMesh.position.z+= z;
+				scene.add( footerMesh );
+				return footerMesh;
+			}
+
+			function player(){
+				var self = this;
+
+				this.position = new THREE.Vector3(0,2,0);
+				this.rotation = new THREE.Vector3(0,0,0);
+				this.mesh = createBox(this.position.x,this.position.y-1,this.position.z,1,1,1,0x000000);
+				this.update =  function(){
+					self.mesh.position.x = self.position.x;
+					self.mesh.position.y = self.position.y;
+					self.mesh.position.z = self.position.z;
+				}
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+			}
+
+			function onDocumentMouseDown( event ) {
+
+				event.preventDefault();
+
+			}
+
+			function onDocumentKeyDown( event ) {
+
+				console.log(event.keyCode);
+				switch( event.keyCode ) {
+					case 90: player.position *= THREE.Vector3(0,1,0);
+					case 83: player.position *= THREE.Vector3(0,1,0);
+					case 90: player.position *= THREE.Vector3(0,1,0);
+					case 90: player.position *= THREE.Vector3(0,1,0);
+				}
+
+			}
+
+			function onDocumentKeyUp( event ) {
+				
+				switch ( event.keyCode ) {
+				}
+				
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				render();
+			}
+
+			function render() {
+				camera.position.x = player.position.x;
+				camera.position.y = player.position.y;
+				camera.position.z = player.position.z;
+				camera.rotation.x = player.rotation.x;
+				camera.rotation.y = player.rotation.y;
+				camera.rotation.z = player.rotation.z;
+
+				player.update();
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
 </html>
