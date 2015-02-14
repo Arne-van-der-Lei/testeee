@@ -135,7 +135,11 @@
 
 				console.log(event.keyCode);
 				switch( event.keyCode ) {
-					case 90: player.position += THREE.Vector3(0,1,0);
+					case 90: 
+						player.position.x += 1*player.rotation.x;
+						player.position.y += 1*player.rotation.y;
+						player.position.z += 1*player.rotation.z;
+						break;
 					case 83: player.position += THREE.Vector3(0,1,0);
 					case 81: player.position += THREE.Vector3(0,1,0);
 					case 68: player.position += THREE.Vector3(0,1,0);
