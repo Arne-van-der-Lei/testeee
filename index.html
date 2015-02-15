@@ -240,13 +240,16 @@
 
 				document.addEventListener( 'keydown', onKeyDown, false );
 				document.addEventListener( 'keyup', onKeyUp, false );
-
-				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
-				raycaster2 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( -1, 0, 0 ), 0, 1 );
-				raycaster3 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 0, 1 ), 0, 1 );
-				raycaster4 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 0, -1 ), 0, 1 );
-				raycaster5 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 1, 0 ), 0, 1 );
-				raycaster6 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, -1, 0 ), 0, 1 );
+				
+				var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+				scene.add( light );
+				
+				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 0.1 );
+				raycaster2 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( -1, 0, 0 ), 0, 0.1 );
+				raycaster3 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 0, 1 ), 0, 0.1 );
+				raycaster4 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 0, -1 ), 0, 0.1 );
+				raycaster5 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 1, 0 ), 0, 0.1 );
+				raycaster6 = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, -1, 0 ), 0, 0.1 );
 
 				// floor
 
@@ -260,14 +263,10 @@
 
 				// objects
 
-				geometry = new THREE.BoxGeometry( 1, 1, 1 );
-
-				material = new THREE.MeshPhongMaterial( { specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
-
-				var mesh = new THREE.Mesh( geometry, material );
-				mesh.position.x+=10;
-				scene.add( mesh );
-				objects[0] = mesh ;
+				brick(4,0,4);
+				brick(4,0,-4);
+				brick(-4,0,4);
+				brick(-4,0,-4);
 
 				//
 				controls.getObject().translateY( 1);
@@ -281,6 +280,18 @@
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
+			}
+
+			function brick(x,y,z){
+				geometry = new THREE.BoxGeometry( 1, 3, 1 );
+				material = new THREE.MeshPhongMaterial( { specular: 0x606060, shading: THREE.FlatShading } );
+
+				var mesh = new THREE.Mesh( geometry, material );
+				mesh.position.x+=x;
+				mesh.position.y+=1.5+y;
+				mesh.position.z+=z;
+				scene.add( mesh );
+				objects.push(mesh);
 			}
 
 			function onWindowResize() {
@@ -297,12 +308,6 @@
 				requestAnimationFrame( animate );
 
 				if ( controlsEnabled ) {
-
-
-					prevplace.x = controls.getObject().position.x;
-					prevplace.y = controls.getObject().position.y;
-					prevplace.z = controls.getObject().position.z;
-
 
 					var time = performance.now();
 					var delta = ( time - prevTime ) / 1000;
@@ -322,55 +327,6 @@
 					controls.getObject().translateY( velocity.y * delta );
 					controls.getObject().translateZ( velocity.z * delta );
 
-					raycaster.ray.origin.copy( controls.getObject().position );
-					raycaster.ray.origin.y -= 1.5;
-
-					var intersections = raycaster.intersectObjects( objects );
-
-					var isOnObject = intersections.length == 0 ;
-
-					raycaster2.ray.origin.copy( controls.getObject().position );
-					raycaster2.ray.origin.y -= 1.5;
-
-					intersections = raycaster2.intersectObjects( objects );
-
-					isOnObject = (intersections.length==0) && isOnObject;
-
-					raycaster3.ray.origin.copy( controls.getObject().position );
-					raycaster3.ray.origin.y -= 1.5;
-
-					intersections = raycaster3.intersectObjects( objects );
-
-					isOnObject = (intersections.length == 0) && isOnObject;
-
-					raycaster4.ray.origin.copy( controls.getObject().position );
-					raycaster4.ray.origin.y -= 1.5;
-
-					intersections = raycaster4.intersectObjects( objects );
-
-					isOnObject = (intersections.length== 0) && isOnObject;
-
-					raycaster5.ray.origin.copy( controls.getObject().position );
-					raycaster5.ray.origin.y -= 1.5;
-
-					intersections = raycaster5.intersectObjects( objects );
-
-					isOnObject = (intersections.length == 0) && isOnObject;
-
-					raycaster6.ray.origin.copy( controls.getObject().position );
-					raycaster6.ray.origin.y -= 1.5;
-
-					intersections = raycaster6.intersectObjects( objects );
-
-					isOnObject = (intersections.length == 0) && isOnObject;
-
-
-					if(!isOnObject){
-						controls.getObject().position.x = prevplace.x ;
-						controls.getObject().position.y = prevplace.y ;
-						controls.getObject().position.z = prevplace.z ;
-					}
-
 					if ( controls.getObject().position.y < 1.6 ) {
 
 						velocity.y = 0;
@@ -378,8 +334,9 @@
 
 						canJump = true;
 
-					}
+					}	
 
+					
 					prevTime = time;
 
 				}
